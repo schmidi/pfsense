@@ -56,10 +56,6 @@ $shortcut_section = "dhcp";
 
 $leasesfile = "{$g['dhcpd_chroot_path']}/var/db/dhcpd.leases";
 
-function leasecmp($a, $b) {
-    return strcmp($a[$_GET['order']], $b[$_GET['order']]);
-}
-
 function adjust_gmt($dt) {
     global $config;
     $dhcpd = $config['dhcpd'];
@@ -252,27 +248,24 @@ foreach($config['interfaces'] as $ifname => $ifarr) {
     }
 }
 
-if ($_GET['order'])
-    usort($leases, "leasecmp");
-
 ?>
 
-<table class="tabcont sortable" width="100%" border="0" cellpadding="0" cellspacing="0" summary="dhcp leases">
+<table class="table table-striped table-hover" id="dhcp_leases">
     <tr>
-        <td class="listhdrr"><a href="#"><?=gettext("IP address"); ?></a></td>
-        <td class="listhdrr"><a href="#"><?=gettext("Hostname"); ?></a></td>
-        <td class="listhdrr"><a href="#"><?=gettext("Online"); ?></a></td>
-        <td class="listhdrr"><a href="#"><?=gettext("Lease Type"); ?></a></td>
+        <th><?=gettext("IP address"); ?></th>
+        <th><?=gettext("Hostname"); ?></th>
+        <th><?=gettext("Online"); ?></th>
+        <th class="text-center"><?=gettext("Lease Type"); ?></th>
     </tr>
     <?php
     foreach ($leases as $data) {
-        if (($data['act'] == "active") || ($data['act'] == "static") || ($_GET['all'] == 1)) {
-            if ($data['act'] != "active" && $data['act'] != "static") {
-                $fspans = "<span class=\"gray\">";
-                $fspane = "&nbsp;</span>";
+        if (($data['act'] == "active") || ($data['act'] == "static")) {
+            if ($data['online'] == "online") {
+                $fspans = "<span class=\"text-success\">";
+                $fspane = "</span>";
             } else {
-                $fspans = "";
-                $fspane = "&nbsp;";
+                $fspans = "<span class=\"text-danger\">";
+                $fspane = "</span>";
             }
             $lip = ip2ulong($data['ip']);
             if ($data['act'] == "static") {
@@ -300,10 +293,10 @@ if ($_GET['order'])
                 }
             }
             echo "<tr>\n";
-            echo "<td class=\"listlr\">{$fspans}{$data['ip']}{$fspane}</td>\n";
-            echo "<td class=\"listr\">{$fspans}"  . htmlentities($data['hostname']) . "{$fspane}</td>\n";
-            echo "<td class=\"listr\">{$fspans}{$data['online']}{$fspane}</td>\n";
-            echo "<td class=\"listr\">{$fspans}{$data['act']}{$fspane}</td>\n";
+            echo "<td>{$data['ip']}</td>\n";
+            echo "<td>"  . htmlentities($data['hostname']) . "</td>\n";
+            echo "<td>{$fspans}{$data['online']}{$fspane}</td>\n";
+            echo "<td class=\"text-center\">{$data['act']}</td>\n";
             echo "</tr>\n";
         }
     }
