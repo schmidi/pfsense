@@ -50,24 +50,8 @@
 require_once("guiconfig.inc");
 require_once("config.inc");
 require_once("system.inc");
+require_once("head.inc");
 require_once("/usr/local/www/widgets/include/dhcp_leases.inc");
-
-function adjust_gmt($dt) {
-    global $config;
-    $dhcpd = $config['dhcpd'];
-    foreach ($dhcpd as $dhcpditem) {
-        $dhcpleaseinlocaltime = $dhcpditem['dhcpleaseinlocaltime'];
-        if ($dhcpleaseinlocaltime == "yes")
-            break;
-    }
-    if ($dhcpleaseinlocaltime == "yes") {
-        $ts = strtotime($dt . " GMT");
-        return strftime("%Y/%m/%d %I:%M:%S%p", $ts);
-    } else
-        return $dt;
-}
-
-include("head.inc");
 
 $leases = system_get_dhcpleases();
 
@@ -81,7 +65,7 @@ $leases = system_get_dhcpleases();
         <th class="text-center"><?=gettext("Lease Type"); ?></th>
     </tr>
     <?php
-    foreach ($leases as $data) {
+    foreach ($leases['lease'] as $data) {
         if (($data['act'] == "active") || ($data['act'] == "static")) {
             if ($data['online'] == "online") {
                 $fspans = "<span class=\"text-success\">";
